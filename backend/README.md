@@ -11,6 +11,10 @@ uv run uvicorn app.main:app --reload
 
 `uv sync` creates the project-local `.venv` and installs versions from `uv.lock`. `uv run` uses that environment without activation. For an interactive shell, run `source .venv/bin/activate`.
 
+The backend now uses a local SQLite database at `backend/data/mlb_analyzer.sqlite3` by default (ignored by Git). Set `MLB_DATABASE_URL` to use another SQLite URL or a PostgreSQL URL with a driver installed. Schema migrations run automatically on the first game request; they can also be run explicitly from `backend/` with `uv run alembic upgrade head`. The initial schema includes MLB players, teams, games, appearances, Statcast pitches, profile snapshots, ingestion runs, and a table for the exact raw MLB responses. Only the raw-response table is populated automatically so far; Statcast ingestion and profile persistence remain separate upcoming work.
+
+Successful schedule and game requests, whether made through a raw or formatted route, refresh the corresponding local raw-response snapshot. Responses still fetch live data; the database is not yet an offline fallback or a historical archive. To inspect saved responses: `sqlite3 data/mlb_analyzer.sqlite3 'SELECT kind, resource_key, length(payload), fetched_at FROM mlb_payloads;'`.
+
 Add a runtime dependency with `uv add package-name`, or a test-only dependency with `uv add --optional test package-name`. Run `uv sync --extra test` after pulling dependency changes.
 
 The app is available at `http://127.0.0.1:8000`. `GET /health` returns `{"status":"ok"}`.

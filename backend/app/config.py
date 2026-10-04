@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -8,6 +9,10 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="MLB_", extra="ignore")
 
     app_name: str = Field(default="MLB Pitch Matchup Analyzer", min_length=1)
+    database_url: str = Field(
+        default=f"sqlite:///{Path(__file__).resolve().parents[1] / 'data' / 'mlb_analyzer.sqlite3'}",
+        min_length=1,
+    )
 
 
 @lru_cache

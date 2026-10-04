@@ -20,9 +20,14 @@ class GameSource(Protocol):
     def get_game_raw(self, game_pk: int) -> bytes: ...
 
 
+class GameSnapshotStore(Protocol):
+    def put(self, kind: str, resource_key: str, payload: bytes) -> None: ...
+
+
 class GameService:
-    def __init__(self, client: GameSource) -> None:
+    def __init__(self, client: GameSource, snapshots: GameSnapshotStore | None = None) -> None:
         self.client = client
+        self.snapshots = snapshots
 
     def schedule(self, game_date: date) -> GamesResponse:
         try:
@@ -37,7 +42,13 @@ class GameService:
             raise InvalidMlbResponse("MLB Stats API returned an unexpected game format") from exc
 
     def raw_schedule(self, game_date: date) -> bytes:
-        return self.client.get_schedule_raw(game_date)
+        payload = self.client.get_schedule_raw(game_date)
+        if self.snapshots is not None:
+            self.snapshots.put("schedule", game_date.isoformat(), payload)
+        return payload
 
     def raw_game(self, game_pk: int) -> bytes:
-        return self.client.get_game_raw(game_pk)
+        payload = self.client.get_game_raw(game_pk)
+        if self.snapshots is not None:
+            self.snapshots.put("game", str(game_pk), payload)
+        return payload

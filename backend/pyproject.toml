@@ -8,10 +8,12 @@ version = "0.1.0"
 description = "Backend for the MLB pitch matchup analyzer"
 requires-python = ">=3.10,<4"
 dependencies = [
+    "alembic>=1.13,<2",
     "certifi>=2024.8",
     "fastapi>=0.115,<1",
     "pydantic>=2.10,<3",
     "pydantic-settings>=2.5,<3",
+    "sqlalchemy>=2.0,<3",
     "uvicorn>=0.30,<1",
 ]
 
