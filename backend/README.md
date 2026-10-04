@@ -31,9 +31,20 @@ Run the test suite with:
 uv run --extra test pytest
 ```
 
-The synthetic pitch-level Statcast fixture and hand-checkable aggregate expectations are documented in `tests/fixtures/README.md`. The CSV is deliberately small and contains sampled appearances from two invented games.
+The packaged synthetic pitch-level Statcast fixture is `app/data/statcast_pitches.csv`; hand-checkable aggregate expectations are documented in `tests/fixtures/README.md`. The CSV is deliberately small and contains sampled appearances from two invented games.
 
-The MVC Model layer now includes a Statcast CSV adapter (`app.ingestion.statcast`), typed pitch observations, pure pitcher/hitter profile generators (`app.analytics.profiles`), configurable sample-size regression (`app.analytics.regression`), and a replaceable weighted matchup scorer (`app.matchup.model`). No matchup Controller or View is wired yet. Domain models live in `app.models.domain` and have no API or persistence dependency. Usage and confidence values are fractions from 0 to 1; matchup scores range from 0 to 100. Each metric carries its own sample size. Environment variables use the `MLB_` prefix; for example, `MLB_APP_NAME` changes the OpenAPI title.
+The MVC Model layer includes a Statcast CSV adapter (`app.ingestion.statcast`), typed pitch observations, pure pitcher/hitter profile generators (`app.analytics.profiles`), configurable sample-size regression (`app.analytics.regression`), and a replaceable weighted matchup scorer (`app.matchup.model`). Fixture-backed matchup and profile Controllers now expose these results; the React matchup View is not wired yet. Domain models live in `app.models.domain` and have no API or persistence dependency. Usage and confidence values are fractions from 0 to 1; matchup scores range from 0 to 100. Each metric carries its own sample size. Environment variables use the `MLB_` prefix; for example, `MLB_APP_NAME` changes the OpenAPI title.
+
+Fixture-backed endpoints use synthetic player IDs `900101`/`900102` (pitchers), `900201`/`900202` (hitters), and game IDs `9900001`/`9900002`:
+
+```text
+GET /matchups/900101/900202
+GET /games/9900001/matchups
+GET /pitchers/900101/profile?batter_side=L
+GET /hitters/900202/profile
+```
+
+The single-matchup response includes a score band, confidence, per-pitch metrics and sample sizes, and the strongest directional explanation. The game response ranks its fixture hitters by score. Every response identifies `synthetic_fixture`; scores are contact-quality indices with `calibrated=false`, not outcome probabilities.
 
 For fixture-backed experimentation, call `load_statcast_csv(path)`, then `build_pitcher_profile(pitcher, rows, batter_side=...)` and `build_hitter_profile(hitter, rows)`, then `WeightedMatchupModel().calculate(pitcher_profile, hitter_profile)`. The scorer's neutral xwOBA prior (`0.320`, `K=25`) is illustrative, not a measured current league baseline. The resulting score is a **contact-quality** opportunity index, not a hit probability, strikeout-aware projection, or betting edge; the tiny fixture should produce very low confidence. Profile xwOBA uses only rows with estimated contact xwOBA, hard-hit rate uses batted balls with known exit velocity, whiff rate uses swings, and strikeout rate uses completed appearances ending on that pitch type. Movement is converted from Statcast feet to inches. wOBA requires both `woba_value` and `woba_denom`; barrel rate requires Statcast's `launch_speed_angle` classification. Where the fixture lacks these fields, the corresponding raw metric and sample size remain unavailable/zero. A switch hitter's actual batting side must be chosen by the caller when building a pitcher split.
 

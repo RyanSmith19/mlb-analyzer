@@ -1,6 +1,6 @@
 # Synthetic Statcast fixture
 
-`statcast_pitches.csv` contains 20 invented pitch-level rows sampled from two invented games. The IDs are deliberately outside real MLB game/player ranges. This is a deterministic test input, not a live or historical MLB extract.
+`app/data/statcast_pitches.csv` contains 20 invented pitch-level rows sampled from two invented games. The IDs are deliberately outside real MLB game/player ranges. This packaged file is a deterministic test and local API input, not a live or historical MLB extract.
 
 | ID | Fixture role | Handedness |
 | --- | --- | --- |
@@ -10,6 +10,8 @@
 | 900202 | Hitter B | Left |
 
 Game `9900001` has Pitcher A facing both hitters on July 1; game `9900002` has Pitcher B facing the same hitters on July 2. These are selected appearances, not complete game logs. Each hitter has two sampled plate appearances against each pitcher, at least nine at-bat slots apart, with two or three pitches per appearance. `game_pk` plus `at_bat_number` identifies a plate appearance; only its final pitch has an `events` value. Empty launch and estimated-wOBA fields mean the pitch was not a ball in play. The movement and velocity fields use familiar Statcast column names, with `pfx_x`/`pfx_z` in feet.
+
+The fixture game registry assigns both hitters to Fixture Visitors (`900002`). Pitcher A belongs to Fixture Hosts (`900001`) in game `9900001`; Pitcher B belongs to Fixture Southpaws (`900003`) in game `9900002`. These teams and IDs are invented game-summary metadata, not columns inferred from Statcast.
 
 ## Expected aggregates
 

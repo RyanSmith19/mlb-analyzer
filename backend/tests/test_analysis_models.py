@@ -13,7 +13,7 @@ from app.matchup.outcomes import PlateAppearanceModel, PlateAppearanceOutcome, P
 from app.models.domain import Hitter, Pitcher
 
 
-ROWS = load_statcast_csv(Path(__file__).parent / "fixtures" / "statcast_pitches.csv")
+ROWS = load_statcast_csv(Path(__file__).parents[1] / "app" / "data" / "statcast_pitches.csv")
 PITCHER_R = Pitcher(player_id=900101, full_name="Pitcher A", throws="R")
 HITTER_R = Hitter(player_id=900201, full_name="Hitter A", bats="R")
 HITTER_L = Hitter(player_id=900202, full_name="Hitter B", bats="L")

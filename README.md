@@ -1,6 +1,6 @@
 # MLB Matchup Analyzer
 
-A baseball analytics application that loads live MLB schedules and formats game detail. The backend's fixture-backed Model layer now turns pitch observations into pitcher and hitter profiles, a contact-quality matchup score, and uncalibrated plate-appearance outcome estimates. Matchup API responses, views, live Statcast ingestion, and calibrated outcome probabilities remain planned work.
+A baseball analytics application that loads live MLB schedules and formats game detail. The backend's fixture-backed Model layer turns pitch observations into pitcher and hitter profiles, a contact-quality matchup score, and uncalibrated plate-appearance outcome estimates. Fixture matchup and profile API responses are available; matchup views, live Statcast ingestion, and calibrated outcome probabilities remain planned work.
 
 ## Repository layout
 
@@ -93,4 +93,4 @@ Tests cover domain validation, health and mocked MLB responses, plus determinist
 
 ## Delivery sequence
 
-With the fixture Model layer in place, the next step is matchup API responses and UI views. Add live MLB/Statcast ingestion after the fixture path is deterministic. Outcome probability and read-only market comparison follow the calibration and provider gates in `plan-doc.md`.
+With the fixture Model layer and API responses in place, the next step is matchup UI views. Add live MLB/Statcast ingestion after the fixture path is deterministic. Outcome probability and read-only market comparison follow the calibration and provider gates in `plan-doc.md`.

@@ -4,7 +4,7 @@ from pathlib import Path
 from statistics import mean
 
 
-FIXTURE = Path(__file__).parent / "fixtures" / "statcast_pitches.csv"
+FIXTURE = Path(__file__).parents[1] / "app" / "data" / "statcast_pitches.csv"
 
 
 def fixture_rows() -> list[dict[str, str]]:
