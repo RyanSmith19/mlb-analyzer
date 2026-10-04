@@ -1,0 +1,60 @@
+{
+  "copyright": "Copyright MLB",
+  "totalGames": 4,
+  "dates": [
+    {
+      "date": "2026-07-02",
+      "games": [
+        {
+          "gamePk": 2001,
+          "gameDate": "2026-07-02T17:10:00Z",
+          "status": {"detailedState": "Scheduled"},
+          "teams": {
+            "away": {"team": {"id": 20, "name": "July 2 Away"}},
+            "home": {"team": {"id": 21, "name": "July 2 Home"}}
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-07-01",
+      "games": [
+        {
+          "gamePk": 1003,
+          "gameDate": "2026-07-01T23:10:00Z",
+          "status": {"detailedState": "In Progress"},
+          "teams": {
+            "away": {"team": {"id": 30, "name": "Late Away"}},
+            "home": {"team": {"id": 31, "name": "Late Home"}}
+          }
+        },
+        {
+          "gamePk": 1002,
+          "gameDate": "2026-07-01T20:10:00Z",
+          "status": {"detailedState": "Final", "abstractGameState": "Final"},
+          "teams": {
+            "away": {
+              "team": {"id": 10, "name": "Away Club"},
+              "score": 4,
+              "probablePitcher": {"id": 101, "fullName": "Away Starter"}
+            },
+            "home": {
+              "team": {"id": 11, "name": "Home Club"},
+              "score": 2,
+              "probablePitcher": {"id": 102, "fullName": "Home Starter"}
+            }
+          }
+        },
+        {
+          "gamePk": 1001,
+          "gameDate": "2026-07-01T20:10:00Z",
+          "status": {"abstractGameState": "Preview", "startTimeTBD": true},
+          "teams": {
+            "away": {"team": {"id": 12, "name": "Early Away"}},
+            "home": {"team": {"id": 13, "name": "Early Home"}}
+          }
+        }
+      ]
+    }
+  ]
+}
