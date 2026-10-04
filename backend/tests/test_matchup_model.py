@@ -10,7 +10,7 @@ from app.matchup.model import MatchupModel, WeightedMatchupModel, score_band
 from app.models.domain import Hitter, MatchupResult, MetricUnit, Pitcher
 
 
-FIXTURE = Path(__file__).parent / "fixtures" / "statcast_pitches.csv"
+FIXTURE = Path(__file__).parents[1] / "app" / "data" / "statcast_pitches.csv"
 PITCHER_R = Pitcher(player_id=900101, full_name="Pitcher A", throws="R")
 PITCHER_L = Pitcher(player_id=900102, full_name="Pitcher B", throws="L")
 HITTER_R = Hitter(player_id=900201, full_name="Hitter A", bats="R")
