@@ -19,6 +19,9 @@ class StatcastRepository:
             raise ValueError("Statcast storage supports SQLite and PostgreSQL")
 
     def completed_days(self, start_date: date, end_date: date) -> set[date]:
+        return {day for day, status in self.latest_statuses(start_date, end_date).items() if status == "complete"}
+
+    def latest_statuses(self, start_date: date, end_date: date) -> dict[date, str]:
         with Session(self.engine) as session:
             runs = session.execute(select(IngestionRun.start_date, IngestionRun.status).where(
                 IngestionRun.source == "statcast",
@@ -29,7 +32,7 @@ class StatcastRepository:
         latest = {}
         for day, status in runs:
             latest.setdefault(day, status)
-        return {day for day, status in latest.items() if status == "complete"}
+        return latest
 
     def start_run(self, day: date) -> int:
         with Session(self.engine) as session:

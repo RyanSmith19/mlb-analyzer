@@ -76,7 +76,41 @@ def test_failed_refresh_supersedes_older_success(tmp_path) -> None:
         StatcastIngestionService(FailingSource(), store).import_range(START, START, refresh=True)
     assert store.completed_days(START, START) == set()
     retry = StatcastIngestionService(fixture_source, store).import_range(START, START)
-    assert (retry.imported_days, retry.inserted, retry.skipped) == (1, 0, 10)
+    assert (retry.imported_days, retry.inserted, retry.skipped) == (1, 10, 0)
+
+
+def test_failed_refresh_keeps_old_pitches_until_corrected_retry(tmp_path) -> None:
+    store = repository(tmp_path)
+    assert StatcastIngestionService(CsvStatcastSource(FIXTURE), store).import_range(START, START).inserted == 10
+    original = dict(CsvStatcastSource(FIXTURE).fetch(START, START)[0])
+    revised = {**original, "pitch_type": "CU", "description": "ball"}
+    added = {**original, "pitch_number": "99"}
+
+    class PartialSource:
+        def fetch(self, start_date: date, end_date: date):
+            return revised, added, {"pitch_type": "FF"}
+
+    with pytest.raises(StatcastImportError):
+        StatcastIngestionService(PartialSource(), store).import_range(START, START, refresh=True)
+    with Session(store.engine) as session:
+        pitches = session.scalars(select(StatcastPitchRecord)).all()
+        assert len(pitches) == 10
+        assert all(pitch.pitch_number != 99 for pitch in pitches)
+        prior = next(pitch for pitch in pitches if pitch.game_id == int(original["game_pk"])
+                     and pitch.at_bat_number == int(original["at_bat_number"])
+                     and pitch.pitch_number == int(original["pitch_number"]))
+        assert prior.pitch_type == original["pitch_type"]
+
+    class CorrectedSource:
+        def fetch(self, start_date: date, end_date: date):
+            return revised, added
+
+    retry = StatcastIngestionService(CorrectedSource(), store).import_range(START, START)
+    assert (retry.inserted, retry.skipped) == (2, 0)
+    with Session(store.engine) as session:
+        pitches = session.scalars(select(StatcastPitchRecord)).all()
+        assert len(pitches) == 2
+        assert {pitch.pitch_type for pitch in pitches} == {"CU", original["pitch_type"]}
 
 
 def test_refresh_replaces_revised_and_removed_pitches(tmp_path) -> None:
@@ -138,10 +172,10 @@ def test_invalid_rows_leave_date_retryable(tmp_path) -> None:
     assert store.completed_days(START, START) == set()
     with Session(store.engine) as session:
         run = session.scalar(select(IngestionRun))
-        assert (run.status, run.inserted_count, run.failed_count) == ("failed", 1, 1)
+        assert (run.status, run.inserted_count, run.failed_count) == ("failed", 0, 1)
 
     result = StatcastIngestionService(CsvStatcastSource(FIXTURE), store).import_range(START, START)
-    assert (result.inserted, result.skipped) == (9, 1)
+    assert (result.inserted, result.skipped) == (10, 0)
 
 
 def test_import_discards_unusable_xwoba_but_preserves_source_value(tmp_path) -> None:

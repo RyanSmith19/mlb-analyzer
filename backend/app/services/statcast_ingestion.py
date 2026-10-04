@@ -24,6 +24,7 @@ class ImportSummary:
 
 class StatcastStore(Protocol):
     def completed_days(self, start_date: date, end_date: date) -> set[date]: ...
+    def latest_statuses(self, start_date: date, end_date: date) -> dict[date, str]: ...
     def start_run(self, day: date) -> int: ...
     def finish_run(self, run_id: int, *, status: str, inserted: int, skipped: int, failed: int) -> None: ...
     def insert_pitches(
@@ -42,7 +43,10 @@ class StatcastIngestionService:
     def import_range(self, start_date: date, end_date: date, *, refresh: bool = False) -> ImportSummary:
         if end_date < start_date:
             raise ValueError("end date must be on or after start date")
-        completed = set() if refresh else self.repository.completed_days(start_date, end_date)
+        latest_statuses = self.repository.latest_statuses(start_date, end_date)
+        completed = set() if refresh else {
+            day for day, status in latest_statuses.items() if status == "complete"
+        }
         imported_days = skipped_days = empty_days = inserted_total = skipped_total = failed_total = 0
         day = start_date
         while day <= end_date:
@@ -76,12 +80,12 @@ class StatcastIngestionService:
                             first_error = errors()[0]["msg"] if callable(errors) else str(exc)
                 if failed:
                     status = "failed"
-                    inserted, skipped = self.repository.insert_pitches(valid_rows)
+                    skipped = ignored
                 elif not valid_rows:
                     status = "empty"
                     empty_days += 1
                     skipped = ignored
-                elif refresh:
+                elif refresh or day in latest_statuses:
                     status = "complete"
                     inserted = self.repository.replace_day(day, valid_rows)
                     skipped = ignored
