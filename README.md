@@ -1,8 +1,8 @@
 # MLB Matchup Analyzer
 
-A baseball analytics application that loads live MLB schedules and formats game detail. The backend's fixture-backed Model layer turns pitch observations into pitcher and hitter profiles, a contact-quality matchup score, and uncalibrated plate-appearance outcome estimates. Fixture matchup and profile API responses are available; matchup views, live Statcast ingestion, and calibrated outcome probabilities remain planned work.
+A baseball analytics application that loads live MLB schedules and formats game detail. The backend's fixture-backed Model layer turns pitch observations into pitcher and hitter profiles, a contact-quality matchup score, and uncalibrated plate-appearance outcome estimates. Fixture matchup and profile API responses are available; matchup views and calibrated outcome probabilities remain planned work.
 
-The backend now saves fetched MLB schedule and game JSON in a local SQLite database. It still fetches live responses for each request; offline reads and live Statcast ingestion are not implemented yet.
+The backend saves MLB schedule and game JSON in a local SQLite database and falls back to saved responses when MLB is unavailable. Statcast pitches can be imported locally from CSV or pybaseball; see `backend/STATCAST.md`.
 
 ## Repository layout
 
